@@ -1,0 +1,12 @@
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color: #272a6a;
+  background-color: #f5f5ff;
+  opacity: 1;
+  background-image:  radial-gradient(#272a6a 0.8500000000000001px, transparent 0.8500000000000001px), radial-gradient(#272a6a 0.8500000000000001px, #f5f5ff 0.8500000000000001px);
+  background-size: 34px 34px;
+  background-position: 0 0,17px 17px;
+}

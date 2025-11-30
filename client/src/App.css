@@ -1,0 +1,122 @@
+body {
+  padding: 1.5rem
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.parameters {
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  display: flex;
+  background-color: rgb(255, 255, 255); 
+  border-radius: 1rem;
+  padding: 1rem 2rem;
+  margin: 0rem 2rem;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.section-title {
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.section-description {
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+
+.navbar {
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  background-color: rgb(255, 255, 255); 
+  border-radius: 1rem;
+  padding: 1rem 2rem;
+  justify-content: space-between;
+  margin: 0rem 2rem;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.logo:hover {
+  transform: scale(1.02);
+}
+
+.logo:active {
+  transform: scale(0.98);
+}
+
+.navbar-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  user-select: none;
+}
+
+.navbar-subtitle {
+  font-size: 0.8rem;
+  font-weight: 450;
+  font-style: italic;
+}
+
+.floating-div {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(2px) }
+  50% { transform: translateY(-4px) }
+}
+
+.parameters-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.option {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.option-text {
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+
+.algorithm-title {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.results {
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  display: flex;
+  background-color: rgb(255, 255, 255); 
+  border-radius: 1rem;
+  padding: 1rem 2rem;
+  margin: 0rem 2rem;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.power-rankings {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ranking {
+  font-size: 0.9rem;
+  font-weight: 400;
+}
