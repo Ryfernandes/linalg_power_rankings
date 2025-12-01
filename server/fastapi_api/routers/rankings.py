@@ -14,10 +14,32 @@ router = APIRouter()
 df = pd.read_csv(DATA_DIR / "nfl_2024_manual.csv")
 
 teams = set()
+points_for_hash = {}
+points_against_hash = {}
 
 for i, row in df.iterrows():
   teams.add(row["Away"])
   teams.add(row["Home"])
+
+  if row["Home"] in points_for_hash:
+    points_for_hash[row["Home"]] += row["Home Score"]
+  else:
+    points_for_hash[row["Home"]] = row["Home Score"]
+
+  if row["Home"] in points_against_hash:
+    points_against_hash[row["Home"]] += row["Away Score"]
+  else:
+    points_against_hash[row["Home"]] = row["Away Score"]
+
+  if row["Away"] in points_for_hash:
+    points_for_hash[row["Away"]] += row["Away Score"]
+  else:
+    points_for_hash[row["Away"]] = row["Away Score"]
+
+  if row["Away"] in points_against_hash:
+    points_against_hash[row["Away"]] += row["Home Score"]
+  else:
+    points_against_hash[row["Away"]] = row["Home Score"]
 
 team_names = list(teams)
 
@@ -42,6 +64,20 @@ def get_discrete_value(tiers, values, num):
       return values[i + 1]
   
   return values[-1]
+
+def get_linear_fit(x_values, y_values):
+  # Get best fit with least squares method
+  A = np.array([np.ones(len(x_values)), x_values]).T
+  b = np.array([y_values]).T
+  z = np.linalg.inv(A.T @ A) @ A.T @ b
+  res = list(z.T[0])
+  # Calculate R squared
+  y_pred = np.array(x_values) * res[1] + res[0]
+  y_mean = np.mean(y_values)
+  ss_tot = np.sum((y_values - y_mean) ** 2)
+  ss_res = np.sum((y_values - y_pred) ** 2)
+  r2 = 1 - (ss_res / ss_tot)
+  return [*res, r2]
 
 class PowerRankingsRequest(BaseModel):
   p: float
@@ -176,31 +212,27 @@ def power_rankings(request: PowerRankingsRequest):
     rankings_hash[name] = rankings[teams_hash[name]]
 
   teams_ranked = sorted(team_names, key = lambda name: rankings_hash[name], reverse = True)
-  team_scores = [rankings_hash[name] for name in teams_ranked]
-  team_wins = [team_wins[name] for name in teams_ranked]
-  team_losses = [team_losses[name] for name in teams_ranked]
-  team_ties = [team_ties[name] for name in teams_ranked]
+  scores = [rankings_hash[name] for name in teams_ranked]
+  wins = [team_wins[name] for name in teams_ranked]
+  losses = [team_losses[name] for name in teams_ranked]
+  ties = [team_ties[name] for name in teams_ranked]
+  points_for = [points_for_hash[name] for name in teams_ranked]
+  points_against = [points_against_hash[name] for name in teams_ranked]
+  net_points = [a - b for a, b in zip(points_for, points_against)]
+  z_points_for = get_linear_fit(points_for, scores)
+  z_points_against = get_linear_fit(points_against, scores)
+  z_net_points = get_linear_fit(net_points, scores)
 
   return {
     "teams": teams_ranked,
-    "scores": team_scores,
-    "wins": team_wins,
-    "losses": team_losses,
-    "ties": team_ties,
-  }
-
-@router.get("/summary")
-def summary():
-  arr = np.random.randn(1000)
-  df = pd.DataFrame({"value": arr})
-  return df.describe().to_dict()
-
-@router.post("/stats")
-def stats(values: list[float]):
-  arr = np.array(values)
-  return {
-    "mean": float(arr.mean()),
-    "std": float(arr.std()),
-    "min": float(arr.min()),
-    "max": float(arr.max())
+    "scores": scores,
+    "wins": wins,
+    "losses": losses,
+    "ties": ties,
+    "points_for": points_for,
+    "points_against": points_against,
+    "net_points": net_points,
+    "points_for_fit": z_points_for,
+    "points_against_fit": z_points_against,
+    "net_points_fit": z_net_points
   }

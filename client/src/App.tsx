@@ -1,8 +1,9 @@
 import './App.css';
 import { useState } from "react";
+import Plot from "./components/Plot";
 
 function App() {
-  const BACKEND_URI = window.location.origin;
+  const BACKEND_URI = import.meta.env.VITE_BACKEND_URI as string || window.location.origin;
   
   const [p, setP] = useState<number>(0.15);
   const [bMode, setBMode] = useState<number>(0);
@@ -22,6 +23,12 @@ function App() {
   const [losses, setLosses] = useState<number[]>([]);
   const [ties, setTies] = useState<number[]>([]);
   const [scores, setScores] = useState<number[]>([]);
+  const [pointsFor, setPointsFor] = useState<number[]>([]);
+  const [pointsAgainst, setPointsAgainst] = useState<number[]>([]);
+  const [netPoints, setNetPoints] = useState<number[]>([]);
+  const [pointsForFit, setPointsForFit] = useState<number[]>([]);
+  const [pointsAgainstFit, setPointsAgainstFit] = useState<number[]>([]);
+  const [netPointsFit, setNetPointsFit] = useState<number[]>([]);
 
   const resetBValues = () => {
     setBWinsPower(1);
@@ -140,6 +147,12 @@ function App() {
     setLosses(data.losses);
     setTies(data.ties);
     setScores(data.scores);
+    setPointsFor(data.points_for);
+    setPointsAgainst(data.points_against);
+    setNetPoints(data.net_points);
+    setPointsForFit(data.points_for_fit);
+    setPointsAgainstFit(data.points_against_fit);
+    setNetPointsFit(data.net_points_fit);
   }
 
   const reloadPage = () => {
@@ -297,9 +310,27 @@ function App() {
         </span>
         <div className="power-rankings">
           {teams.map((team, index) => (
-            <span className="ranking">{String(index + 1).padStart(2)}. {team} ({wins[index]}-{losses[index]}{ties[index] > 0 ? `-${ties[index]}` : ""}) ({scores[index].toFixed(4)})</span>
+            <span key={team} className="ranking">{String(index + 1).padStart(2)}. {team} ({wins[index]}-{losses[index]}{ties[index] > 0 ? `-${ties[index]}` : ""}) ({scores[index].toFixed(4)})</span>
           ))}
         </div>
+      </div>
+
+      <div className="results">
+        <span className="section-title">
+          Step 3. Check Ranking Correlations
+        </span>
+        <span className="section-description">
+          Once you have run the algorithm, you can also check how the power ranking scores are correlated to season-long metrics like points for, points against, and net point differential. Explore the plots, best fit lines (from the least squares method) and R-squared values below
+        </span>
+        {pointsFor.length > 0 ? (
+          <>
+            <Plot title='"Points For" Correlation' subtitle={`R ² = ${pointsForFit[2]}`} x_label="Points For" y_label="Ranking Score" x_axis={pointsFor} y_axis={scores} teams={teams} fit_slope={pointsForFit[1]} fit_intercept={pointsForFit[0]}></Plot>
+            <Plot title='"Points Against" Correlation' subtitle={`R ² = ${pointsAgainstFit[2]}`} x_label="Points Against" y_label="Ranking Score" x_axis={pointsAgainst} y_axis={scores} teams={teams} fit_slope={pointsAgainstFit[1]} fit_intercept={pointsAgainstFit[0]}></Plot>
+            <Plot title='"Net Points" Correlation' subtitle={`R ² = ${netPointsFit[2]}`} x_label="Net Points" y_label="Ranking Score" x_axis={netPoints} y_axis={scores} teams={teams} fit_slope={netPointsFit[1]} fit_intercept={netPointsFit[0]}></Plot>
+          </>
+        ) : (
+          <></>
+        )}
       </div>
     </div>
   )
